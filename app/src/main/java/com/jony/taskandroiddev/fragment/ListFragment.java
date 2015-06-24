@@ -1,8 +1,9 @@
 package com.jony.taskandroiddev.fragment;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+//import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
+import com.jony.taskandroiddev.MainActivity;
 import com.jony.taskandroiddev.R;
 
 import com.jony.taskandroiddev.fragment.dummy.DummyContent;
@@ -100,12 +102,10 @@ public class ListFragment extends Fragment implements AbsListView.OnItemClickLis
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-//        try {
-//            mListener = (OnFragmentInteractionListener) activity;
-//        } catch (ClassCastException e) {
-//            throw new ClassCastException(activity.toString()
-//                    + " must implement OnFragmentInteractionListener");
-//        }
+
+        ((MainActivity) activity).onSectionAttached(
+                getArguments().getInt(ARG_SECTION_NUMBER));
+
     }
 
     @Override

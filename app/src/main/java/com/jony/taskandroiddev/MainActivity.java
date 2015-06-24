@@ -47,19 +47,28 @@ public class MainActivity extends ActionBarActivity
     @Override
     public void onNavigationDrawerItemSelected(int position) {
 
+        FragmentTransaction fTransaction = getFragmentManager().beginTransaction();
         switch (position){
             case 0:
 
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                fragmentManager.beginTransaction().replace(R.id.container, PlaceholderFragment.newInstance(position + 1)).commit();
+                PlaceholderFragment placeholderFragment = PlaceholderFragment.newInstance(position + 1);
+                fTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                fTransaction.replace(R.id.container, placeholderFragment);
+
                 break;
 
             case 1:
-                FragmentManager fragmentManager2 = getSupportFragmentManager();
-                fragmentManager2.beginTransaction().replace(R.id.container, ListFragment.newInstance(position + 1)).commit();
+
+                ListFragment listFragment = ListFragment.newInstance(position + 1);
+                fTransaction.setCustomAnimations(R.transition.slide_in_left, R.transition.slide_in_right);
+                fTransaction.replace(R.id.container, listFragment);
+
                 break;
 
         }
+//        fTransaction.addToBackStack(null);
+        fTransaction.commit();
+
 
     }
 
