@@ -50,7 +50,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             onCreate(db, connectionSource);
 
         } catch (java.sql.SQLException e) {
-            Log.e(TAG,"error upgrading db "+DATABASE_NAME+"from ver "+oldVer);
+            Log.e(TAG,"error upgrading db "+DATABASE_NAME+" from ver "+oldVer);
             e.printStackTrace();
         }
     }
@@ -59,7 +59,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
     public RecordDao getRecordDao() throws SQLException {
         if(recordDao == null){
-//            recordDao = new RecordDao(getConnectionSource(), Record.class);
             recordDao = new RecordDao(getConnectionSource());
         }
         return recordDao;

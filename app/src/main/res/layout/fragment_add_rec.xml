@@ -4,7 +4,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.jony.taskandroiddev.fragment.PlaceholderFragment">
+    tools:context="com.jony.taskandroiddev.fragment.AddRecordFragment">
 
     <TextView android:id="@+id/section_label" android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
@@ -27,6 +27,12 @@
         android:id="@+id/buttoAddRec"
         android:text="Add"
         android:layout_below="@+id/editTextRec"/>
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/buttoClear"
+        android:text="Clear"
+        android:layout_below="@+id/buttoAddRec"/>
 
 
 </RelativeLayout>

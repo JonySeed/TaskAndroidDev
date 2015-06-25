@@ -14,9 +14,11 @@ public class HelperFactory{
     public static DatabaseHelper getHelper(){
         return databaseHelper;
     }
+
     public static void setHelper(Context context){
         databaseHelper = OpenHelperManager.getHelper(context, DatabaseHelper.class);
     }
+
     public static void releaseHelper(){
         OpenHelperManager.releaseHelper();
         databaseHelper = null;

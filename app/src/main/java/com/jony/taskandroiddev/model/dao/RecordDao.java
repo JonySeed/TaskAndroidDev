@@ -23,7 +23,16 @@ public class RecordDao {
         return dao.queryForAll();
     }
 
-    public void insertRecord(Record record) throws SQLException {
+    public void addRecord(Record record) throws SQLException {
         dao.create(record);
+    }
+
+
+    public void clearList() throws SQLException {
+        List<Record> list = getAllRecord();
+        for (Record record : list){
+            dao.delete(record);
+        }
+
     }
 }
