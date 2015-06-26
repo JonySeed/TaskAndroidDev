@@ -16,6 +16,8 @@ public class Record {
     @DatabaseField(canBeNull = false, dataType = DataType.STRING)
     private String str;
 
+    private boolean checkBox;
+
     public Record() {
     }
 
@@ -39,10 +41,19 @@ public class Record {
         this.str = str;
     }
 
+    public boolean isCheckBox() {
+        return checkBox;
+    }
+
+    public void setCheckBox(boolean checkBox) {
+        this.checkBox = checkBox;
+    }
+
     @Override
     public String toString(){
         return Integer.toString(id) + " " + str;
     }
+
 
 
 }

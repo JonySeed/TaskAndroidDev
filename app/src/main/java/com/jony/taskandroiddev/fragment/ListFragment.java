@@ -3,23 +3,18 @@ package com.jony.taskandroiddev.fragment;
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
-//import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.ListAdapter;
+import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 
-import com.jony.taskandroiddev.MainActivity;
+import com.jony.taskandroiddev.activity.MainActivity;
 import com.jony.taskandroiddev.R;
-
-import com.jony.taskandroiddev.fragment.component.ModelList;
-import com.jony.taskandroiddev.fragment.component.ItemList;
+import com.jony.taskandroiddev.adapter.MyAdapter;
 import com.jony.taskandroiddev.model.HelperFactory;
 import com.jony.taskandroiddev.model.entity.Record;
 
@@ -27,7 +22,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 
-public class ListFragment extends Fragment implements AbsListView.OnItemClickListener {
+public class ListFragment extends Fragment implements AbsListView.OnItemClickListener, View.OnClickListener {
 
 
     private final String TAG = this.getClass().getName();
@@ -35,9 +30,10 @@ public class ListFragment extends Fragment implements AbsListView.OnItemClickLis
 
     private OnFragmentInteractionListener mListener;
 
-    private AbsListView mListView;
-    private ListAdapter mAdapter;
+    private ListView mListView;
+    private MyAdapter myAdapter;
 
+    private List<Record> list;
 
     public static ListFragment newInstance(int sectionNumber) {
         ListFragment fragment = new ListFragment();
@@ -47,10 +43,6 @@ public class ListFragment extends Fragment implements AbsListView.OnItemClickLis
         return fragment;
     }
 
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
     public ListFragment() {
     }
 
@@ -58,37 +50,34 @@ public class ListFragment extends Fragment implements AbsListView.OnItemClickLis
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mAdapter = new ArrayAdapter<ItemList>(getActivity(),
-                R.layout.item, R.id.itemText, ModelList.ITEMS);
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        View view = inflater.inflate(R.layout.fragment_list, container, false);
 
-        List<Record> list = null;
+        list = null;
         try {
             list = HelperFactory.getHelper().getRecordDao().getAllRecord();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        ModelList.clearList();
 
-        if (list != null) {
-            for (Record record : list) {
-                ModelList.addItem(new ItemList(Integer.toString(record.getId()), record.getStr()));
-            }
-        }
-
-        View view = inflater.inflate(R.layout.fragment_list, container, false);
-
-        // Set adapter
-        mListView = (AbsListView) view.findViewById(R.id.listRecords);
-        ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
-
+        // create and set adapter
+        myAdapter = new MyAdapter(getActivity(),list);
+        mListView = (ListView) view.findViewById(R.id.listRecords);
+//        View footer = getActivity().getLayoutInflater().inflate(R.layout.footer, null);
+//        mListView.addFooterView(footer);
+        mListView.setAdapter(myAdapter);
         mListView.setOnItemClickListener(this);
+
+        Button deleteSelected = (Button) view.findViewById(R.id.buttoDeleteSelected);
+        deleteSelected.setOnClickListener(this);
+
+        Button clear = (Button)view.findViewById(R.id.buttoClear);
+        clear.setOnClickListener(this);
 
         return view;
     }
@@ -102,8 +91,6 @@ public class ListFragment extends Fragment implements AbsListView.OnItemClickLis
 
         mListener = (OnFragmentInteractionListener)activity;
 
-
-
     }
 
     @Override
@@ -116,7 +103,7 @@ public class ListFragment extends Fragment implements AbsListView.OnItemClickLis
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
         if (null != mListener) {
-            mListener.onFragmentInteraction(ModelList.ITEMS.get(position).content);
+            mListener.onFragmentInteraction(myAdapter.getProduct(position).getStr());
         }
     }
 
@@ -134,8 +121,17 @@ public class ListFragment extends Fragment implements AbsListView.OnItemClickLis
 
     }
 
+    @Override
+    public void onClick(View v) {
+        if (null != mListener) {
+            mListener.onButtonClickListenerListFragment(myAdapter, v);
+
+        }
+    }
+
     public interface OnFragmentInteractionListener {
         public void onFragmentInteraction(String id);
+        public void onButtonClickListenerListFragment(MyAdapter myAdapter, View v);
     }
 
 }

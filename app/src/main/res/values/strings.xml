@@ -12,4 +12,9 @@
 
     <string name="action_settings">Settings</string>
 
+    <string name="button_delete_selected">Delete selected</string>
+    <string name="button_add_record">Add</string>
+    <string name="button_clear_list">Clear</string>
+    <string name="text_view_enter_text">Enter text</string>
+
 </resources>

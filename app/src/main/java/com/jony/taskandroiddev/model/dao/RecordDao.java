@@ -29,10 +29,11 @@ public class RecordDao {
 
 
     public void clearList() throws SQLException {
-        List<Record> list = getAllRecord();
-        for (Record record : list){
-            dao.delete(record);
-        }
-
+        deleteList(getAllRecord());
     }
+
+    public void deleteList(List<Record> list) throws SQLException {
+        dao.delete(list);
+    }
+
 }

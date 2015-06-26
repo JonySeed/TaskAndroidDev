@@ -11,7 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import com.jony.taskandroiddev.MainActivity;
+import com.jony.taskandroiddev.activity.MainActivity;
 import com.jony.taskandroiddev.R;
 
 
@@ -43,8 +43,8 @@ public class AddRecordFragment extends Fragment implements View.OnClickListener{
         Button buttonAddRec = (Button)rootView.findViewById(R.id.buttoAddRec);
         buttonAddRec.setOnClickListener(this);
 
-        Button buttonClear = (Button)rootView.findViewById(R.id.buttoClear);
-        buttonClear.setOnClickListener(this);
+//        Button buttonClear = (Button)rootView.findViewById(R.id.buttoClear);
+//        buttonClear.setOnClickListener(this);
 
         return rootView;
 
@@ -62,13 +62,13 @@ public class AddRecordFragment extends Fragment implements View.OnClickListener{
     @Override
     public void onClick(View v) {
         if (mButtonListener != null){
-            mButtonListener.onButtonClickListener(v);
+            mButtonListener.onButtonClickListenerAddRecordFragment(v);
         }
 
     }
 
     public interface OnButtonClickListener{
-        public void onButtonClickListener(View v);
+        public void onButtonClickListenerAddRecordFragment(View v);
     }
 }
 

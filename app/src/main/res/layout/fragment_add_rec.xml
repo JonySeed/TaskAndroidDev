@@ -12,7 +12,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Enter text"
+        android:text="@string/text_view_enter_text"
         android:id="@+id/textView"
         android:layout_alignTop="@+id/section_label"
         android:layout_alignParentStart="true" />
@@ -25,14 +25,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/buttoAddRec"
-        android:text="Add"
+        android:text="@string/button_add_record"
         android:layout_below="@+id/editTextRec"/>
-    <Button
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/buttoClear"
-        android:text="Clear"
-        android:layout_below="@+id/buttoAddRec"/>
 
 
 </RelativeLayout>
