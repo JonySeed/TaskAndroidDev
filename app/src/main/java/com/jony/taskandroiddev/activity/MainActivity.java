@@ -1,6 +1,7 @@
 package com.jony.taskandroiddev.activity;
 
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -18,6 +19,18 @@ import com.jony.taskandroiddev.adapter.MyAdapter;
 import com.jony.taskandroiddev.fragment.NavigationDrawerFragment;
 import com.jony.taskandroiddev.model.HelperFactory;
 import com.jony.taskandroiddev.model.entity.Record;
+import com.vk.sdk.VKAccessToken;
+import com.vk.sdk.VKScope;
+import com.vk.sdk.VKSdk;
+import com.vk.sdk.VKSdkListener;
+import com.vk.sdk.VKUIHelper;
+import com.vk.sdk.api.VKApi;
+import com.vk.sdk.api.VKApiConst;
+import com.vk.sdk.api.VKError;
+import com.vk.sdk.api.VKParameters;
+import com.vk.sdk.api.VKRequest;
+import com.vk.sdk.api.VKResponse;
+import com.vk.sdk.dialogs.VKShareDialog;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -26,20 +39,71 @@ import java.util.List;
 public class MainActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks,
         ListFragment.OnFragmentInteractionListener,
-        AddRecordFragment.OnButtonClickListener {
+        AddRecordFragment.OnButtonClickListener,
+        MyAdapter.OnVkShareListener {
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        VKUIHelper.onResume(this);
+    }
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
-    private NavigationDrawerFragment mNavigationDrawerFragment;
 
+
+    private NavigationDrawerFragment mNavigationDrawerFragment;
     private final String TAG = this.getClass().getName();
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        VKUIHelper.onActivityResult(this, requestCode, resultCode, data);
+    }
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
+    private static final String VK_APP_ID = "4973499";
+    private VKRequest currentRequest;
+
+    private final VKSdkListener sdkListener = new VKSdkListener() {
+
+        @Override
+        public void onAcceptUserToken(VKAccessToken token) {
+            Log.d("VkDemoApp", "onAcceptUserToken " + token);
+        }
+
+        @Override
+        public void onReceiveNewToken(VKAccessToken newToken) {
+            Log.d("VkDemoApp", "onReceiveNewToken " + newToken);
+        }
+
+        @Override
+        public void onRenewAccessToken(VKAccessToken token) {
+            Log.d("VkDemoApp", "onRenewAccessToken " + token);
+        }
+
+        @Override
+        public void onCaptchaError(VKError captchaError) {
+            Log.d("VkDemoApp", "onCaptchaError " + captchaError);
+        }
+
+        @Override
+        public void onTokenExpired(VKAccessToken expiredToken) {
+            Log.d("VkDemoApp", "onTokenExpired " + expiredToken);
+        }
+
+        @Override
+        public void onAccessDenied(VKError authorizationError) {
+            Log.d("VkDemoApp", "onAccessDenied " + authorizationError);
+        }
+
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +118,9 @@ public class MainActivity extends ActionBarActivity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+
+        VKSdk.initialize(sdkListener, VK_APP_ID);
+        VKUIHelper.onCreate(this);
 
 
     }
@@ -118,9 +185,15 @@ public class MainActivity extends ActionBarActivity
     @Override
     protected void onDestroy() {
 
-        HelperFactory.releaseHelper();
         super.onDestroy();
 
+        HelperFactory.releaseHelper();
+        VKSdk.logout();
+        VKUIHelper.onDestroy(this);
+
+        if (currentRequest != null) {
+            currentRequest.cancel();
+        }
     }
 
     //implement listener NavigationDrawerFragment
@@ -213,5 +286,72 @@ public class MainActivity extends ActionBarActivity
                 break;
 
         }
+    }
+
+
+    //implement share data to vk wall
+    @Override
+    public void vkShare(Record record) {
+
+
+        Thread authorizeThread = new Thread(){
+
+                @Override
+                public void run(){
+                    if (!VKSdk.wakeUpSession()) {
+                        VKSdk.authorize(VKScope.WALL);
+                    }
+                }
+        };
+        authorizeThread.start();
+        try {
+            authorizeThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            new VKShareDialog().setText(record.getStr())
+                    .setShareDialogListener(new VKShareDialog.VKShareDialogListener() {
+                        @Override
+                        public void onVkShareComplete(int i) {
+                            Log.i(TAG, "record shared complete");
+                        }
+
+                        @Override
+                        public void onVkShareCancel() {
+                            Log.i(TAG, "record shared error");
+                        }
+                    }).show(getSupportFragmentManager(), "VK_SHARE_DIALOG");
+        }
+
+
+
+//        currentRequest = VKApi.wall().post(VKParameters.from(VKApiConst.OWNER_ID,
+//                VKSdk.getAccessToken().userId, VKApiConst.MESSAGE,
+//                record.getStr()));
+//
+//        currentRequest.executeWithListener(new VKRequest.VKRequestListener() {
+//            @Override
+//            public void onComplete(VKResponse response) {
+//                super.onComplete(response);
+//                Log.i("==========", "onComplete!!!");
+//            }
+//
+//            @Override
+//            public void attemptFailed(VKRequest request, int attemptNumber, int totalAttempts) {
+//                super.attemptFailed(request, attemptNumber, totalAttempts);
+//            }
+//
+//            @Override
+//            public void onError(VKError error) {
+//                super.onError(error);
+//                Log.i("==========","onError!!!" + error.toString());
+//            }
+//
+//            @Override
+//            public void onProgress(VKRequest.VKProgressType progressType, long bytesLoaded, long bytesTotal) {
+//                super.onProgress(progressType, bytesLoaded, bytesTotal);
+//            }
+//        });
+
     }
 }

@@ -66,6 +66,7 @@ public class ListFragment extends Fragment implements AbsListView.OnItemClickLis
         }
 
         // create and set adapter
+
         myAdapter = new MyAdapter(getActivity(),list);
         mListView = (ListView) view.findViewById(R.id.listRecords);
 //        View footer = getActivity().getLayoutInflater().inflate(R.layout.footer, null);
