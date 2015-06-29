@@ -4,6 +4,13 @@ android {
     compileSdkVersion 21
     buildToolsVersion "21.1.2"
 
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/license.txt'
+    }
+
     defaultConfig {
         applicationId "com.jony.taskandroiddev"
         minSdkVersion 19
@@ -24,4 +31,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.1.1'
     compile 'com.j256.ormlite:ormlite-android:4.45'
     compile 'com.vk:androidsdk:+'
+    compile 'org.springframework.android:spring-android-rest-template:1.0.1.RELEASE'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.3.2'
 }

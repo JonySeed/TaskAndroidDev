@@ -18,21 +18,23 @@ import com.jony.taskandroiddev.model.entity.Record;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Андрей on 26.06.2015.
- */
-public class MyAdapter extends BaseAdapter {
+public class ItemListAdapter extends BaseAdapter {
 
     Context context;
     LayoutInflater inflater;
     List<Record> list;
     OnVkShareListener onVkShareListener;
 
-    public MyAdapter(Context context,  List<Record> list) {
+    public ItemListAdapter(Context context, List<Record> list) {
 
         this.context = context;
         this.list = list;
-        this.onVkShareListener = (OnVkShareListener)context;
+
+        try {
+            this.onVkShareListener = (OnVkShareListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException("Activity must implement OnVkShareListener.");
+        }
 
         inflater = LayoutInflater.from(context);
 
@@ -60,7 +62,7 @@ public class MyAdapter extends BaseAdapter {
 
         View view = convertView;
         if (view == null) {
-            view = inflater.inflate( R.layout.item, parent, false);
+            view = inflater.inflate(R.layout.item, parent, false);
         }
 
         final Record record = getProduct(position);
@@ -78,7 +80,7 @@ public class MyAdapter extends BaseAdapter {
         shareVk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(Integer.toString(position),textView.getText().toString());
+                Log.i(Integer.toString(position), textView.getText().toString());
                 onVkShareListener.vkShare(record);
 
             }
@@ -87,8 +89,8 @@ public class MyAdapter extends BaseAdapter {
         return view;
     }
 
-    public Record getProduct(int position){
-        return (Record)getItem(position);
+    public Record getProduct(int position) {
+        return (Record) getItem(position);
     }
 
     public ArrayList<Record> getSelectedItem() {
@@ -110,7 +112,7 @@ public class MyAdapter extends BaseAdapter {
         }
     };
 
-    public interface OnVkShareListener{
+    public interface OnVkShareListener {
         public void vkShare(Record record);
     }
 }

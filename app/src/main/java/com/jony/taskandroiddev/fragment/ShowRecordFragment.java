@@ -6,15 +6,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.jony.taskandroiddev.activity.MainActivity;
 import com.jony.taskandroiddev.R;
-import com.jony.taskandroiddev.adapter.MyAdapter;
+import com.jony.taskandroiddev.adapter.ItemListAdapter;
 import com.jony.taskandroiddev.model.HelperFactory;
 import com.jony.taskandroiddev.model.entity.Record;
 
@@ -22,7 +20,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 
-public class ListFragment extends Fragment implements AbsListView.OnItemClickListener, View.OnClickListener {
+public class ShowRecordFragment extends Fragment implements View.OnClickListener {
 
 
     private final String TAG = this.getClass().getName();
@@ -31,19 +29,33 @@ public class ListFragment extends Fragment implements AbsListView.OnItemClickLis
     private OnFragmentInteractionListener mListener;
 
     private ListView mListView;
-    private MyAdapter myAdapter;
+    private ItemListAdapter itemListAdapter;
 
     private List<Record> list;
 
-    public static ListFragment newInstance(int sectionNumber) {
-        ListFragment fragment = new ListFragment();
+
+    public static ShowRecordFragment newInstance(int sectionNumber) {
+        ShowRecordFragment fragment = new ShowRecordFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_SECTION_NUMBER, sectionNumber);
         fragment.setArguments(args);
         return fragment;
     }
 
-    public ListFragment() {
+    public ShowRecordFragment() {
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        ((MainActivity) activity).onSectionAttached(
+                getArguments().getInt(ARG_SECTION_NUMBER));
+        try {
+            mListener = (OnFragmentInteractionListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException("Activity must implement OnFragmentInteractionListener.");
+        }
     }
 
     @Override
@@ -65,34 +77,25 @@ public class ListFragment extends Fragment implements AbsListView.OnItemClickLis
             e.printStackTrace();
         }
 
+
+
         // create and set adapter
 
-        myAdapter = new MyAdapter(getActivity(),list);
+        itemListAdapter = new ItemListAdapter(getActivity(), list);
         mListView = (ListView) view.findViewById(R.id.listRecords);
 //        View footer = getActivity().getLayoutInflater().inflate(R.layout.footer, null);
 //        mListView.addFooterView(footer);
-        mListView.setAdapter(myAdapter);
-        mListView.setOnItemClickListener(this);
+        mListView.setAdapter(itemListAdapter);
 
         Button deleteSelected = (Button) view.findViewById(R.id.buttoDeleteSelected);
         deleteSelected.setOnClickListener(this);
 
-        Button clear = (Button)view.findViewById(R.id.buttoClear);
+        Button clear = (Button) view.findViewById(R.id.buttoClear);
         clear.setOnClickListener(this);
 
         return view;
     }
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        ((MainActivity) activity).onSectionAttached(
-                getArguments().getInt(ARG_SECTION_NUMBER));
-
-        mListener = (OnFragmentInteractionListener)activity;
-
-    }
 
     @Override
     public void onDetach() {
@@ -100,23 +103,11 @@ public class ListFragment extends Fragment implements AbsListView.OnItemClickLis
         mListener = null;
     }
 
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-        if (null != mListener) {
-            mListener.onFragmentInteraction(myAdapter.getProduct(position).getStr());
-        }
-    }
-
-    /**
-     * The default content for this Fragment has a TextView that is shown when
-     * the list is empty. If you would like to change the text, call this method
-     * to supply the text it should use.
-     */
     public void setEmptyText(String emptyText) {
 
         View emptyView = getActivity().findViewById(R.id.textEmpty);
-        if (emptyView != null){
+        if (emptyView != null) {
             ((TextView) emptyView).setText(emptyText);
         }
 
@@ -125,14 +116,12 @@ public class ListFragment extends Fragment implements AbsListView.OnItemClickLis
     @Override
     public void onClick(View v) {
         if (null != mListener) {
-            mListener.onButtonClickListenerListFragment(myAdapter, v);
-
+            mListener.onButtonClickListenerListFragment(itemListAdapter, v);
         }
     }
 
     public interface OnFragmentInteractionListener {
-        public void onFragmentInteraction(String id);
-        public void onButtonClickListenerListFragment(MyAdapter myAdapter, View v);
+        public void onButtonClickListenerListFragment(ItemListAdapter itemListAdapter, View v);
     }
 
 }

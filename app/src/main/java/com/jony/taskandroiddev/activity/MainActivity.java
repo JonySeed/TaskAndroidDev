@@ -3,6 +3,7 @@ package com.jony.taskandroiddev.activity;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -14,8 +15,8 @@ import android.widget.EditText;
 
 import com.jony.taskandroiddev.R;
 import com.jony.taskandroiddev.fragment.AddRecordFragment;
-import com.jony.taskandroiddev.fragment.ListFragment;
-import com.jony.taskandroiddev.adapter.MyAdapter;
+import com.jony.taskandroiddev.fragment.ShowRecordFragment;
+import com.jony.taskandroiddev.adapter.ItemListAdapter;
 import com.jony.taskandroiddev.fragment.NavigationDrawerFragment;
 import com.jony.taskandroiddev.model.HelperFactory;
 import com.jony.taskandroiddev.model.entity.Record;
@@ -24,12 +25,7 @@ import com.vk.sdk.VKScope;
 import com.vk.sdk.VKSdk;
 import com.vk.sdk.VKSdkListener;
 import com.vk.sdk.VKUIHelper;
-import com.vk.sdk.api.VKApi;
-import com.vk.sdk.api.VKApiConst;
 import com.vk.sdk.api.VKError;
-import com.vk.sdk.api.VKParameters;
-import com.vk.sdk.api.VKRequest;
-import com.vk.sdk.api.VKResponse;
 import com.vk.sdk.dialogs.VKShareDialog;
 
 import java.sql.SQLException;
@@ -38,9 +34,9 @@ import java.util.List;
 
 public class MainActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks,
-        ListFragment.OnFragmentInteractionListener,
+        ShowRecordFragment.OnFragmentInteractionListener,
         AddRecordFragment.OnButtonClickListener,
-        MyAdapter.OnVkShareListener {
+        ItemListAdapter.OnVkShareListener {
 
     @Override
     protected void onResume() {
@@ -63,12 +59,10 @@ public class MainActivity extends ActionBarActivity
         VKUIHelper.onActivityResult(this, requestCode, resultCode, data);
     }
 
-    /**
-     * Used to store the last screen title. For use in {@link #restoreActionBar()}.
-     */
+
     private CharSequence mTitle;
     private static final String VK_APP_ID = "4973499";
-    private VKRequest currentRequest;
+//    private VKRequest currentRequest;
 
     private final VKSdkListener sdkListener = new VKSdkListener() {
 
@@ -122,13 +116,20 @@ public class MainActivity extends ActionBarActivity
         VKSdk.initialize(sdkListener, VK_APP_ID);
         VKUIHelper.onCreate(this);
 
+        HelperFactory.setHelper(getApplicationContext());
+
 
     }
 
     @Override
     protected void onStart() {
-        HelperFactory.setHelper(getApplicationContext());
         super.onStart();
+
+        if (HelperFactory.getHelper() == null) {
+//            Log.i(TAG, "=============================================");
+            HelperFactory.setHelper(getApplicationContext());
+        }
+
     }
 
     public void onSectionAttached(int number) {
@@ -139,17 +140,13 @@ public class MainActivity extends ActionBarActivity
             case 2:
                 mTitle = getString(R.string.title_show_rec);
                 break;
-
         }
-    }
 
-    public void restoreActionBar() {
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(mTitle);
-    }
 
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -166,20 +163,20 @@ public class MainActivity extends ActionBarActivity
 
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        int id = item.getItemId();
+//
+//        //noinspection SimplifiableIfStatement
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
 
 
     @Override
@@ -191,9 +188,9 @@ public class MainActivity extends ActionBarActivity
         VKSdk.logout();
         VKUIHelper.onDestroy(this);
 
-        if (currentRequest != null) {
-            currentRequest.cancel();
-        }
+//        if (currentRequest != null) {
+//            currentRequest.cancel();
+//        }
     }
 
     //implement listener NavigationDrawerFragment
@@ -212,33 +209,28 @@ public class MainActivity extends ActionBarActivity
 
             case 1:
 
-                ListFragment listFragment = ListFragment.newInstance(position + 1);
+                ShowRecordFragment showRecordFragment = ShowRecordFragment.newInstance(position + 1);
                 fTransaction.setCustomAnimations(R.transition.slide_in_left, R.transition.slide_in_right);
-                fTransaction.replace(R.id.container, listFragment);
+                fTransaction.replace(R.id.container, showRecordFragment);
 
                 break;
 
         }
-//        fTransaction.addToBackStack(null);
+        fTransaction.addToBackStack(null);
         fTransaction.commit();
 
 
     }
 
-    //implement listener ListFragment class
-    @Override
-    public void onFragmentInteraction(String id) {
-        Log.i(TAG, (id));
-    }
 
     //implement onClickListener ListFragment class
     @Override
-    public void onButtonClickListenerListFragment(MyAdapter myAdapter, View v) {
+    public void onButtonClickListenerListFragment( ItemListAdapter itemListAdapter, View v) {
         switch (v.getId()) {
             case R.id.buttoDeleteSelected:
 
                 Log.i(TAG, "onClick buttoDeleteSelected");
-                List<Record> selectedRecord = myAdapter.getSelectedItem();
+                List<Record> selectedRecord = itemListAdapter.getSelectedItem();
 
                 if (selectedRecord.size() != 0) {
                     try {
@@ -289,19 +281,19 @@ public class MainActivity extends ActionBarActivity
     }
 
 
-    //implement share data to vk wall
+    //implement share data to wall vk
     @Override
     public void vkShare(Record record) {
 
 
-        Thread authorizeThread = new Thread(){
+        Thread authorizeThread = new Thread() {
 
-                @Override
-                public void run(){
-                    if (!VKSdk.wakeUpSession()) {
-                        VKSdk.authorize(VKScope.WALL);
-                    }
+            @Override
+            public void run() {
+                if (!VKSdk.wakeUpSession()) {
+                    VKSdk.authorize(VKScope.WALL);
                 }
+            }
         };
         authorizeThread.start();
         try {
@@ -322,7 +314,6 @@ public class MainActivity extends ActionBarActivity
                         }
                     }).show(getSupportFragmentManager(), "VK_SHARE_DIALOG");
         }
-
 
 
 //        currentRequest = VKApi.wall().post(VKParameters.from(VKApiConst.OWNER_ID,
